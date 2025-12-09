@@ -1,29 +1,47 @@
 package main
 
 import (
-    "fmt"
-    "lesson_3/documentstore"
+	"fmt"
+	"lesson_4/documentstore"
 )
 
 func main() {
 
-	doc := &documentstore.Document{
+	store := documentstore.NewStore()
+
+	created, collection := store.CreateCollection("users", &documentstore.CollectionConfig{
+		PrimaryKey: "key",
+	})
+
+	if !created {
+		fmt.Println("Collection already exists")
+		return
+	}
+
+	doc := documentstore.Document{
 		Fields: map[string]documentstore.DocumentField{
 			"key": {
 				Type:  documentstore.DocumentFieldTypeString,
 				Value: "doc_1",
 			},
+			"name": {
+				Type:  documentstore.DocumentFieldTypeString,
+				Value: "John",
+			},
 		},
 	}
 
-	documentstore.Put(doc)
+	collection.Put(doc)
 
-	retrievedDoc, found := documentstore.Get("doc_1")
+	retrieved, found := collection.Get("doc_1")
 	if found {
-		fmt.Println("Document found:", retrievedDoc)
+		fmt.Println("Document found:", retrieved)
 	} else {
 		fmt.Println("Document not found")
 	}
 
-	documentstore.Delete("doc_1")
+	deleted := collection.Delete("doc_1")
+	fmt.Println("Document deleted:", deleted)
+
+	fmt.Println("List:", collection.List())
 }
