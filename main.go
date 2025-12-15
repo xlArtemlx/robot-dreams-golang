@@ -2,46 +2,71 @@ package main
 
 import (
 	"fmt"
-	"lesson_4/documentstore"
+	"lesson_5/documentstore"
+	"lesson_5/users"
 )
 
 func main() {
-
 	store := documentstore.NewStore()
 
-	created, collection := store.CreateCollection("users", &documentstore.CollectionConfig{
-		PrimaryKey: "key",
-	})
-
-	if !created {
-		fmt.Println("Collection already exists")
-		return
+	firstUser := struct {
+		ID   string
+		Name string
+	}{
+		ID:   "1",
+		Name: "Simpson",
 	}
 
-	doc := documentstore.Document{
-		Fields: map[string]documentstore.DocumentField{
-			"key": {
-				Type:  documentstore.DocumentFieldTypeString,
-				Value: "doc_1",
-			},
-			"name": {
-				Type:  documentstore.DocumentFieldTypeString,
-				Value: "John",
-			},
-		},
+	secondUser := struct {
+		ID   string
+		Name string
+	}{
+		ID:   "2",
+		Name: "Bart",
 	}
 
-	collection.Put(doc)
+	userService, err := users.UserService(store)
+	if err != nil {
+		panic(err)
+	}
 
-	retrieved, found := collection.Get("doc_1")
-	if found {
-		fmt.Println("Document found:", retrieved)
+	if _, err := userService.CreateUser(firstUser.ID, firstUser.Name); err != nil {
+		fmt.Printf(
+			"user %s (%s) created: %v\n",
+			firstUser.Name,
+			firstUser.ID,
+			err,
+		)
+	}
+	if _, err := userService.CreateUser(secondUser.ID, secondUser.Name); err != nil {
+		fmt.Printf(
+			"user %s (%s) created: %v\n",
+			secondUser.Name,
+			secondUser.ID,
+			err,
+		)
+	}
+
+	list, err := userService.ListUsers()
+	if err != nil {
+		fmt.Println("list users failed:", err)
 	} else {
-		fmt.Println("Document not found")
+		fmt.Println("users list:", list)
 	}
 
-	deleted := collection.Delete("doc_1")
-	fmt.Println("Document deleted:", deleted)
+	user, err := userService.GetUser("1")
+	if err != nil {
+		fmt.Println("get user failed:", err)
+	} else {
+		fmt.Println("user 1:", user)
+	}
 
-	fmt.Println("List:", collection.List())
+	if err := userService.DeleteUser("1"); err != nil {
+		fmt.Println("delete user failed:", err)
+	} else {
+		fmt.Println("user 1 deleted")
+	}
+
+	_, err = userService.GetUser("1")
+	fmt.Println("get 1 after delete:", err)
 }

@@ -9,39 +9,48 @@ type CollectionConfig struct {
 	PrimaryKey string
 }
 
-func (s *Collection) Put(doc Document) {
-	field, ok := doc.Fields[s.cfg.PrimaryKey]
+func (c *Collection) Put(doc Document) error {
+	if c.cfg == nil {
+		return ErrNilCollectionConfig
+	}
+
+	field, ok := doc.Fields[c.cfg.PrimaryKey]
 	if !ok {
-		return
+		return ErrPrimaryKeyNotFound
 	}
 
 	if field.Type != DocumentFieldTypeString {
-		return
+		return ErrInvalidPrimaryKeyType
 	}
 
 	key, ok := field.Value.(string)
 	if !ok {
-		return
+		return ErrInvalidPrimaryKeyValue
 	}
-	s.documents[key] = &doc
+
+	c.documents[key] = &doc
+	return nil
 }
 
-func (s *Collection) Get(key string) (*Document, bool) {
-	doc, exists := s.documents[key]
-	return doc, exists
-}
-
-func (s *Collection) Delete(key string) bool {
-	if _, exists := s.documents[key]; exists {
-		delete(s.documents, key)
-		return true
+func (c *Collection) Get(key string) (*Document, error) {
+	doc, exists := c.documents[key]
+	if !exists {
+		return nil, ErrDocumentNotFound
 	}
-	return false
+	return doc, nil
 }
 
-func (s *Collection) List() []Document {
-	result := make([]Document, 0, len(s.documents))
-	for _, doc := range s.documents {
+func (c *Collection) Delete(key string) error {
+	if _, exists := c.documents[key]; !exists {
+		return ErrDocumentNotFound
+	}
+	delete(c.documents, key)
+	return nil
+}
+
+func (c *Collection) List() []Document {
+	result := make([]Document, 0, len(c.documents))
+	for _, doc := range c.documents {
 		result = append(result, *doc)
 	}
 	return result

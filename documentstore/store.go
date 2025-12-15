@@ -10,9 +10,16 @@ func NewStore() *Store {
 	}
 }
 
-func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (bool, *Collection) {
+func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (*Collection, error) {
+	if name == "" {
+		return nil, ErrEmptyCollectionName
+	}
+	if cfg == nil {
+		return nil, ErrNilCollectionConfig
+	}
+
 	if _, exists := s.collections[name]; exists {
-		return false, nil
+		return nil, ErrCollectionAlreadyExists
 	}
 
 	col := &Collection{
@@ -21,19 +28,21 @@ func (s *Store) CreateCollection(name string, cfg *CollectionConfig) (bool, *Col
 	}
 
 	s.collections[name] = col
-
-	return true, col
+	return col, nil
 }
 
-func (s *Store) GetCollection(name string) (*Collection, bool) {
+func (s *Store) GetCollection(name string) (*Collection, error) {
 	col, exists := s.collections[name]
-	return col, exists
+	if !exists {
+		return nil, ErrCollectionNotFound
+	}
+	return col, nil
 }
 
-func (s *Store) DeleteCollection(name string) bool {
-	if _, exists := s.collections[name]; exists {
-		delete(s.collections, name)
-		return true
+func (s *Store) DeleteCollection(name string) error {
+	if _, exists := s.collections[name]; !exists {
+		return ErrCollectionNotFound
 	}
-	return false
+	delete(s.collections, name)
+	return nil
 }
