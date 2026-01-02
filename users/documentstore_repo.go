@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/xlArtemlx/robot-dreams-golang/documentstore"
+	"github.com/xlArtemlx/robot-dreams-golang/internal/documentstore"
 )
 
 type DocumentStoreUserRepository struct {

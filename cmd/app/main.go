@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/xlArtemlx/robot-dreams-golang/documentstore"
+	"github.com/xlArtemlx/robot-dreams-golang/internal/documentstore"
 	"github.com/xlArtemlx/robot-dreams-golang/users"
 )
 
