@@ -1,13 +1,28 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"lesson_5/documentstore"
-	"lesson_5/users"
+	"log/slog"
+	"os"
+
+	"github.com/xlArtemlx/robot-dreams-golang/internal/documentstore"
+	"github.com/xlArtemlx/robot-dreams-golang/internal/logging"
+	"github.com/xlArtemlx/robot-dreams-golang/users"
 )
 
 func main() {
-	store := documentstore.NewStore()
+	ctx := context.Background()
+
+	log := logging.New(logging.Config{
+		Service:     "robot-dreams-golang",
+		Environment: os.Getenv("ENVIRONMENT"),
+		Version:     os.Getenv("APP_VERSION"),
+		Level:       slog.LevelInfo,
+		Output:      os.Stdout,
+	})
+
+	store := documentstore.NewStore(log)
 
 	firstUser := struct {
 		ID   string
@@ -25,12 +40,14 @@ func main() {
 		Name: "Bart",
 	}
 
-	userService, err := users.UserService(store)
+	repo, err := users.NewDocumentStoreUserRepository(ctx, store)
 	if err != nil {
 		panic(err)
 	}
 
-	if _, err := userService.CreateUser(firstUser.ID, firstUser.Name); err != nil {
+	userService := users.NewService(repo)
+
+	if _, err := userService.CreateUser(ctx, firstUser.ID, firstUser.Name); err != nil {
 		fmt.Printf(
 			"user %s (%s) created: %v\n",
 			firstUser.Name,
@@ -38,7 +55,7 @@ func main() {
 			err,
 		)
 	}
-	if _, err := userService.CreateUser(secondUser.ID, secondUser.Name); err != nil {
+	if _, err := userService.CreateUser(ctx, secondUser.ID, secondUser.Name); err != nil {
 		fmt.Printf(
 			"user %s (%s) created: %v\n",
 			secondUser.Name,
@@ -61,7 +78,7 @@ func main() {
 		fmt.Println("user 1:", user)
 	}
 
-	if err := userService.DeleteUser("1"); err != nil {
+	if err := userService.DeleteUser(ctx, "1"); err != nil {
 		fmt.Println("delete user failed:", err)
 	} else {
 		fmt.Println("user 1 deleted")
