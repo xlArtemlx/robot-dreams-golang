@@ -10,10 +10,10 @@ type Store struct {
 	log         *slog.Logger
 }
 
-func NewStore() *Store {
+func NewStore(log *slog.Logger) *Store {
 	return &Store{
 		collections: make(map[string]*Collection),
-		log:         Logger(),
+		log:         log.With(slog.String("component", "documentstore.store")),
 	}
 }
 

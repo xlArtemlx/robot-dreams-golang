@@ -3,15 +3,26 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"os"
 
 	"github.com/xlArtemlx/robot-dreams-golang/internal/documentstore"
+	"github.com/xlArtemlx/robot-dreams-golang/internal/logging"
 	"github.com/xlArtemlx/robot-dreams-golang/users"
 )
 
 func main() {
 	ctx := context.Background()
 
-	store := documentstore.NewStore()
+	log := logging.New(logging.Config{
+		Service:     "robot-dreams-golang",
+		Environment: os.Getenv("ENVIRONMENT"),
+		Version:     os.Getenv("APP_VERSION"),
+		Level:       slog.LevelInfo,
+		Output:      os.Stdout,
+	})
+
+	store := documentstore.NewStore(log)
 
 	firstUser := struct {
 		ID   string

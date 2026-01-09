@@ -9,7 +9,7 @@ import (
 
 func TestCollection_PutGetDelete(t *testing.T) {
 	ctx := context.Background()
-	st := NewStore()
+	st := NewStore(testLogger())
 
 	col, err := st.CreateCollection(ctx, "users", &CollectionConfig{PrimaryKey: "id"})
 	require.NoError(t, err)
@@ -38,7 +38,7 @@ func TestCollection_PutGetDelete(t *testing.T) {
 
 func TestCollection_Put_PrimaryKeyValidation(t *testing.T) {
 	ctx := context.Background()
-	st := NewStore()
+	st := NewStore(testLogger())
 
 	col, err := st.CreateCollection(ctx, "users", &CollectionConfig{PrimaryKey: "id"})
 	require.NoError(t, err)
@@ -61,7 +61,7 @@ func TestCollection_Put_PrimaryKeyValidation(t *testing.T) {
 
 func TestCollection_Delete_NotFound(t *testing.T) {
 	ctx := context.Background()
-	st := NewStore()
+	st := NewStore(testLogger())
 
 	col, err := st.CreateCollection(ctx, "users", &CollectionConfig{PrimaryKey: "id"})
 	require.NoError(t, err)
@@ -72,7 +72,7 @@ func TestCollection_Delete_NotFound(t *testing.T) {
 
 func TestCollection_List(t *testing.T) {
 	ctx := context.Background()
-	st := NewStore()
+	st := NewStore(testLogger())
 
 	col, err := st.CreateCollection(ctx, "users", &CollectionConfig{PrimaryKey: "id"})
 	require.NoError(t, err)

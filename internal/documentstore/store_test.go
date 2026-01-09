@@ -9,7 +9,7 @@ import (
 
 func TestStore_CreateGetDeleteCollection(t *testing.T) {
 	ctx := context.Background()
-	st := NewStore()
+	st := NewStore(testLogger())
 
 	col, err := st.CreateCollection(ctx, "users", &CollectionConfig{PrimaryKey: "id"})
 	require.NoError(t, err)
@@ -28,7 +28,7 @@ func TestStore_CreateGetDeleteCollection(t *testing.T) {
 
 func TestStore_CreateCollection_AlreadyExists(t *testing.T) {
 	ctx := context.Background()
-	st := NewStore()
+	st := NewStore(testLogger())
 
 	_, err := st.CreateCollection(ctx, "users", &CollectionConfig{PrimaryKey: "id"})
 	require.NoError(t, err)
@@ -39,7 +39,7 @@ func TestStore_CreateCollection_AlreadyExists(t *testing.T) {
 
 func TestStore_CreateCollection_Validation(t *testing.T) {
 	ctx := context.Background()
-	st := NewStore()
+	st := NewStore(testLogger())
 
 	_, err := st.CreateCollection(ctx, "", &CollectionConfig{PrimaryKey: "id"})
 	require.ErrorIs(t, err, ErrEmptyCollectionName)
